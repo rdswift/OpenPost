@@ -32,9 +32,10 @@ import uuid
 import webbrowser
 
 SCRIPT_NAME = 'OpenPost'
-SCRIPT_VERS = '0.03'
+SCRIPT_VERS = '0.04'
 SCRIPT_COPYRIGHT = '2019'
 SCRIPT_AUTHOR = 'Bob Swift'
+SCRIPT_LICENSE = 'GPLv3'
 
 DEFAULT_HTML_FILE = 'openpost.html'
 DEFAULT_TIME_TO_LIVE = 5
@@ -42,7 +43,7 @@ DEFAULT_TIME_TO_LIVE = 5
 HTML_TEMPLATE = """\
 <html>
   <head>
-    <title>Open Post Redirector</title>
+    <title>OpenPost Redirector</title>
   </head>
   <body onLoad="javascript: document.getElementById('postform').submit();">
     <form method="post" name="postform" id="postform" action="{0}">
@@ -89,7 +90,7 @@ def date_filename():
     return time.strftime('%Y%m%d%H%M%S') + '.html'
 
 
-def exit_with_error(error_number):
+def exit_with_error(error_number=-1):
     """Print error message and exit with specified error number
 
     Arguments:
@@ -126,26 +127,26 @@ def test_url(url_to_test):
     return 0
 
 
-def parse_command_arguments():
+def parse_command_arguments(args=None):
     """Set up and process command line arguments.
 
     Returns:
         dict -- Dictionary of arguments and options
     """
-    arg_parser = argparse.ArgumentParser(description="{0} (v{1})\nOpens a POST request from the command line in a browser window.".format(SCRIPT_NAME, SCRIPT_VERS,),
-                                         usage="'openpost.py --help'  or  'openpost.py URL POST_DATA'\n ")
+    arg_parser = argparse.ArgumentParser(description="{0} (v{1})\nOpens a POST request from the command line in a browser window.".format(SCRIPT_NAME, SCRIPT_VERS,))
     arg_parser.add_argument("url", help="The destination URL to send the POST request.", type=str, metavar='URL')
     arg_parser.add_argument("post_data", help="The POST data to send in the form 'key=value'.  Multiple key/value sets are allowed, separated by spaces.",
-                            metavar='POST_DATA', type=str, nargs='+')
-    arg_parser.add_argument("-p", "--file-path", help="Output directory for the temporary HTML file.  Defaults to the current directory.", type=str, metavar='FILEPATH', dest='FILEPATH')
+                            metavar='KEY=VALUE', type=str, nargs='+')
+    arg_parser.add_argument("-p", "--file-path", help="Output directory for the temporary HTML file.  Defaults to the current directory.",
+                            type=str, metavar='FILEPATH', dest='FILEPATH')
     group1 = arg_parser.add_mutually_exclusive_group()
     group1.add_argument("-r", "--random-name", help="Set the temporary HTML file name to a random string.", action='store_true')
     group1.add_argument("-d", "--date-name", help="Set the temporary HTML file name to the current date/time string.", action='store_true')
     group1.add_argument("-f", "--file-name", help="Manually set the temporary HTML file name.", type=str, metavar='FILENAME', dest='FILENAME')
     group2 = arg_parser.add_mutually_exclusive_group()
     group2.add_argument("-k", "--keep-file", help="Do not delete the temporary HTML file.", action='store_true')
-    group2.add_argument("-t", "--time-to-live", help="Set the number of seconds to wait before deleting the temporary HTML file.", type=float, metavar='SEC', dest='SECONDS')
-    return arg_parser.parse_args()
+    group2.add_argument("-t", "--time-to-live", help="Set the number of seconds to wait before deleting the temporary HTML file.", type=float, metavar='SECONDS', dest='SECONDS')
+    return arg_parser.parse_args(args)
 
 
 def make_form_data_string(inputs):
@@ -171,7 +172,10 @@ def make_form_data_string(inputs):
             data_string += '{0}<input type="hidden" name="{1}" value="{2}">\n'.format(' ' * 6, key, value,)
         else:
             exit_with_error(110)
-    return data_string.strip('\n')
+    data_string = data_string.strip('\n')
+    if not data_string:
+        exit_with_error(111)
+    return data_string
 
 
 def make_time_to_live(args):
@@ -262,10 +266,7 @@ def main():
     file_path = make_file_path(args)
     file_name = make_file_name(args)
     html_file = os.path.join(file_path, file_name)
-
     form_data = make_form_data_string(args.post_data)
-    if not form_data:
-        exit_with_error(111)
 
     html_text = HTML_TEMPLATE.format(url, form_data,)
 

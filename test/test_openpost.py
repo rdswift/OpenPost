@@ -3,6 +3,7 @@
 """Tests for the OpenPost project
 """
 
+import pytest
 import time
 import openpost as test_module
 
@@ -16,7 +17,10 @@ class ArgsObject(object):
     random_name = False
     FILENAME = None
     FILEPATH = None
+    keep_file = False
     SECONDS = None
+    url = None
+    post_data = None
 
 
 def test_date_name():
@@ -87,11 +91,6 @@ def test_make_file_path_02():
     args.random_name = False
     name = test_module.make_file_path(args)
     assert name == 'test_FILE_path'
-
-
-def test_empty_post_data():
-    data = test_module.make_form_data_string([])
-    assert data == ''
 
 
 def test_single_post_data():
@@ -189,3 +188,185 @@ def test_test_ttl_03():
     args.SECONDS = 13.5
     data = test_module.make_time_to_live(args)
     assert data == 13.5
+
+
+def test_exit_missing(capsys):
+    args = ArgsObject()
+    args.url = ''
+    with pytest.raises(SystemExit) as err:
+        test_module.exit_with_error()
+    assert err.value.code == -1
+
+
+def test_exit_unknown(capsys):
+    args = ArgsObject()
+    args.url = ''
+    with pytest.raises(SystemExit) as err:
+        test_module.exit_with_error(-1)
+    assert err.value.code == -1
+
+
+def test_exit_101(capsys):
+    args = ArgsObject()
+    args.url = ''
+    with pytest.raises(SystemExit) as err:
+        test_module.exit_with_error(101)
+    assert err.value.code == 101
+
+
+def test_make_ttl_e104_1(capsys):
+    args = ArgsObject()
+    args.SECONDS = -1
+    with pytest.raises(SystemExit) as err:
+        test_module.make_time_to_live(args)
+    assert err.value.code == 104
+
+
+def test_make_ttl_e104_2(capsys):
+    args = ArgsObject()
+    args.SECONDS = 61
+    with pytest.raises(SystemExit) as err:
+        test_module.make_time_to_live(args)
+    assert err.value.code == 104
+
+
+def test_make_path_e105_1(capsys):
+    args = ArgsObject()
+    args.FILEPATH = ''
+    with pytest.raises(SystemExit) as err:
+        test_module.make_file_path(args)
+    assert err.value.code == 105
+
+
+def test_make_path_e105_2(capsys):
+    args = ArgsObject()
+    args.FILEPATH = ' '
+    with pytest.raises(SystemExit) as err:
+        test_module.make_file_path(args)
+    assert err.value.code == 105
+
+
+def test_make_path_e106(capsys):
+    args = ArgsObject()
+    args.FILEPATH = 'openpost.py'
+    with pytest.raises(SystemExit) as err:
+        test_module.make_file_path(args)
+    assert err.value.code == 106
+
+
+def test_make_name_e107_1(capsys):
+    args = ArgsObject()
+    args.FILENAME = ''
+    with pytest.raises(SystemExit) as err:
+        test_module.make_file_name(args)
+    assert err.value.code == 107
+
+
+def test_make_name_e107_2(capsys):
+    args = ArgsObject()
+    args.FILENAME = ' '
+    with pytest.raises(SystemExit) as err:
+        test_module.make_file_name(args)
+    assert err.value.code == 107
+
+
+def test_make_data_e108_1(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string('')
+    assert err.value.code == 108
+
+
+def test_make_data_e108_2(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string(0)
+    assert err.value.code == 108
+
+
+def test_make_data_e108_3(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string(1.5)
+    assert err.value.code == 108
+
+
+def test_make_data_e108_4(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string(('a', 'b'))
+    assert err.value.code == 108
+
+
+def test_make_data_e108_5(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string({'key': 'value',})
+    assert err.value.code == 108
+
+
+def test_make_data_e109(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string(['no equals sign'])
+    assert err.value.code == 109
+
+
+def test_make_data_e109(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string(['no equals sign'])
+    assert err.value.code == 109
+
+
+def test_make_data_e110(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string(['=no key'])
+    assert err.value.code == 110
+
+
+def test_make_data_e111(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.make_form_data_string([])
+    assert err.value.code == 111
+
+
+def test_main_e0_1(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['--help'])
+    assert err.value.code == 0
+
+
+def test_main_e0_2(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['-h'])
+    assert err.value.code == 0
+
+
+def test_main_e2_1(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments([])
+    assert err.value.code == 2
+
+
+def test_main_e2_2(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['localhost'])
+    assert err.value.code == 2
+
+
+def test_main_e2_3(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['localhost', 'key=value', '-r', '-d'])
+    assert err.value.code == 2
+
+
+def test_main_e2_4(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['localhost', 'key=value', '-r', '-f', 'filename'])
+    assert err.value.code == 2
+
+
+def test_main_e2_5(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['localhost', 'key=value', '-d', '-f', 'filename'])
+    assert err.value.code == 2
+
+
+def test_main_e2_6(capsys):
+    with pytest.raises(SystemExit) as err:
+        test_module.parse_command_arguments(['localhost', 'key=value', '-k', '-t', '5'])
+    assert err.value.code == 2

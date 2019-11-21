@@ -34,4 +34,4 @@ jobs:
         export PYTHONPATH="$PYTHONPATH:."
         python -c "import sys;print(sys.path)"
         # pytest
-        pytest -v --cov-branch --cov=openpost
+        pytest -v --capture=sys --cov-branch --cov=openpost
