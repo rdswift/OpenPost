@@ -26,6 +26,7 @@ Python script used to open a POST request from the command line in a browser win
 import argparse
 import html
 import os
+import sys
 import time
 import uuid
 import webbrowser
@@ -98,12 +99,12 @@ def exit_with_error(error_number):
     if err:
         if err in ERRORS:
             print("\n\n{0}\n\n".format(ERRORS[err],))
-            exit(err)
+            sys.exit(err)
         else:
             print("\n\nUnknown error: {0}\n\n".format(err,))
-            exit(err)
+            sys.exit(err)
     else:
-        exit(0)
+        sys.exit(0)
 
 
 def test_url(url_to_test):

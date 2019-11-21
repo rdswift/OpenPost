@@ -4,6 +4,7 @@
 import time
 import openpost as test_module
 
+
 class ArgsObject(object):
     """
     Temporary object used for testing to mimic the args object
