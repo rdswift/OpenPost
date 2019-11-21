@@ -69,6 +69,7 @@ ERRORS = {
     111: "Invalid POST data: Empty list.",
 }
 
+
 def random_filename():
     """Provides a unique, random html file name.
 
