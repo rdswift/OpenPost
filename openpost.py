@@ -32,7 +32,7 @@ import uuid
 import webbrowser
 
 SCRIPT_NAME = 'OpenPost'
-SCRIPT_VERS = '0.02'
+SCRIPT_VERS = '0.03'
 SCRIPT_COPYRIGHT = '2019'
 SCRIPT_AUTHOR = 'Bob Swift'
 
@@ -230,7 +230,7 @@ def make_file_name(args):
         html_file = random_filename()
     elif args.date_name:
         html_file = date_filename()
-    elif 'FILENAME' in vars(args):
+    elif 'FILENAME' in vars(args) and getattr(args, 'FILENAME') is not None:
         temp = str(getattr(args, 'FILENAME')).strip()
         if not temp:
             exit_with_error(107)
@@ -259,11 +259,8 @@ def main():
         delete_file = False
 
     time_to_live = make_time_to_live(args)
-
     file_path = make_file_path(args)
-
     file_name = make_file_name(args)
-
     html_file = os.path.join(file_path, file_name)
 
     form_data = make_form_data_string(args.post_data)
@@ -289,9 +286,6 @@ def main():
         time.sleep(time_to_live)
         if os.path.exists(html_file):
             os.remove(html_file)
-
-    # print('URL = {0}\nPOST = {1}\n\n'.format(args.url, args.post_data,))
-    # print('\n\nTTL = {0}\nPath: {1}\nName: {2}\n\n{3}\n\n'.format(time_to_live, file_path, file_name, args,))
 
 ##############################################################################
 
