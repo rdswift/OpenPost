@@ -1,4 +1,5 @@
 import time
+import pytest
 import openpost as test_module
 
 class ArgsObject(object):

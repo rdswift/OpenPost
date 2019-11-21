@@ -27,4 +27,10 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
-        pytest
+        pip install pytest-cov
+        pwd
+        ls -l
+        export PYTHONPATH="$PYTHONPATH:."
+        python -c "import sys;print(sys.path)"
+        # pytest
+        pytest -v --cov-branch --cov=openpost
