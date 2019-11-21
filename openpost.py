@@ -56,7 +56,6 @@ HTML_TEMPLATE = """\
 ########################################
 
 ERRORS = {
-    100: "No processing command specified.",
     101: "Invalid URL provided: Empty string.",
     102: "Invalid URL provided: Contains spaces.",
     103: "Invalid URL provided: Unspecified error.",
