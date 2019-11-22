@@ -1,3 +1,8 @@
+# For more information regarding the configuration of mdl, see
+# https://github.com/markdownlint/markdownlint/blob/master/docs/configuration.md
+
+verbose true
+
 # Removed Rules:
 #      "MD013", # line length should be no more than 80 characters
 #      "MD029", # ordered list item prefix, should be ordered
