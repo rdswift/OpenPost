@@ -296,14 +296,8 @@ def test_make_data_e108_4(capsys):
 
 def test_make_data_e108_5(capsys):
     with pytest.raises(SystemExit) as err:
-        test_module.make_form_data_string({'key': 'value',})
+        test_module.make_form_data_string({'key': 'value'})
     assert err.value.code == 108
-
-
-def test_make_data_e109(capsys):
-    with pytest.raises(SystemExit) as err:
-        test_module.make_form_data_string(['no equals sign'])
-    assert err.value.code == 109
 
 
 def test_make_data_e109(capsys):
