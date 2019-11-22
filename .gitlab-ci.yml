@@ -34,8 +34,8 @@ python-analysis:
   - python --version
   - pip install -r requirements.txt
   - pip install flake8 pylint
-  - flake8 *.py
-  - pylint *.py
+  - flake8 .
+  - pylint openpost.py
 #  only:
 #    changes:
 #      - *.py
