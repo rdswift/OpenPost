@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import glob
+import os
+
+class unit_test():
+    description = "run automated tests"
+    user_options = [
+        ("tests=", None, "list of tests to run (default all)"),
+        ("verbosity=", "v", "verbosity"),
+    ]
+
+    # def initialize_options(self):
+    def __init__(self):
+        self.tests = []
+        self.verbosity = 1
+
+    def finalize_options(self):
+        if self.tests:
+            self.tests = self.tests.split(",")
+        # In case the verbosity flag is used, verbosity is None
+        if not self.verbosity:
+            self.verbosity = 2
+        # Convert to appropriate verbosity if passed by --verbosity option
+        self.verbosity = int(self.verbosity)
+
+    def run(self):
+        import unittest
+
+        names = []
+        for filename in glob.glob("test/test_*.py"):
+            name = os.path.splitext(os.path.basename(filename))[0]
+            if not self.tests or name in self.tests:
+                names.append("test." + name)
+
+        tests = unittest.defaultTestLoader.loadTestsFromNames(names)
+        t = unittest.TextTestRunner(verbosity=self.verbosity)
+        testresult = t.run(tests)
+        if not testresult.wasSuccessful():
+            sys.exit("At least one test failed.")
+
+
+##############################################################################
+
+def main():
+    tests = unit_test()
+    # tests.initialize_options()
+    tests.finalize_options()
+    tests.verbosity = 2
+    tests.run()
+    sys.exit()
+
+##############################################################################
+
+if __name__ == "__main__":
+    # execute only if run as a script
+    main()

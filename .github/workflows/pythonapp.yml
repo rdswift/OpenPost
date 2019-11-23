@@ -25,13 +25,22 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         # flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
-    - name: Test with pytest
+    # - name: Test with pytest
+    #   run: |
+    #     pip install pytest
+    #     pip install pytest-cov
+    #     pwd
+    #     ls -l
+    #     export PYTHONPATH="$PYTHONPATH:."
+    #     python -c "import sys;print(sys.path)"
+    #     # pytest
+    #     pytest -v --capture=sys --cov-branch --cov=openpost
+    - name: Test with unittest
       run: |
-        pip install pytest
-        pip install pytest-cov
+        pip install coverage
         pwd
         ls -l
         export PYTHONPATH="$PYTHONPATH:."
         python -c "import sys;print(sys.path)"
-        # pytest
-        pytest -v --capture=sys --cov-branch --cov=openpost
+        coverage run runtests
+        coverage report

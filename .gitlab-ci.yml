@@ -46,12 +46,15 @@ python-testing:
   script:
   - python --version
   - pip install -r requirements.txt
-  - pip install pytest pytest-cov
+#  - pip install pytest pytest-cov
+  - pip install coverage
   - pwd
   - ls -l
   - export PYTHONPATH="$PYTHONPATH:."
   - python -c "import sys;print(sys.path)"
-  - pytest -v --capture=sys --cov-branch --cov=openpost
+  - coverage run runtests
+  - coverage report
+#  - pytest -v --capture=sys --cov-branch --cov=openpost
 #  - python -m pytest -v
 #  only:
 #    changes:
