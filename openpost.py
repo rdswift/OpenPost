@@ -32,13 +32,14 @@ import uuid
 import webbrowser
 
 SCRIPT_NAME = 'OpenPost'
-SCRIPT_VERS = '0.04'
-SCRIPT_COPYRIGHT = '2019'
+SCRIPT_VERS = '0.05'
+SCRIPT_COPYRIGHT = '2019-2020'
 SCRIPT_AUTHOR = 'Bob Swift'
 SCRIPT_LICENSE = 'GPLv3'
 
 DEFAULT_HTML_FILE = 'openpost.html'
 DEFAULT_TIME_TO_LIVE = 5
+DEFAULT_STDIN_KEY = 'stdin'
 
 HTML_TEMPLATE = """\
 <html>
@@ -67,7 +68,7 @@ ERRORS = {
     107: "Invalid temporary file name: Empty string.",
     108: "Invalid POST data: Not a list.",
     109: "Invalid POST data item: No key/value separator.",
-    110: "Invalid POST data item: No key spacified.",
+    110: "Invalid POST data item: No key specified.",
     111: "Invalid POST data: Empty list.",
 }
 
@@ -136,9 +137,11 @@ def parse_command_arguments(args=None):
     arg_parser = argparse.ArgumentParser(description="{0} (v{1})\nOpens a POST request from the command line in a browser window.".format(SCRIPT_NAME, SCRIPT_VERS,))
     arg_parser.add_argument("url", help="The destination URL to send the POST request.", type=str, metavar='URL')
     arg_parser.add_argument("post_data", help="The POST data to send in the form 'key=value'.  Multiple key/value sets are allowed, separated by spaces.",
-                            metavar='KEY=VALUE', type=str, nargs='+')
+                            metavar='KEY=VALUE', type=str, nargs='*')
     arg_parser.add_argument("-p", "--file-path", help="Output directory for the temporary HTML file.  Defaults to the current directory.",
                             type=str, metavar='FILEPATH', dest='FILEPATH')
+    arg_parser.add_argument("-s", "--stdin", help="Key to use for input from stdin.  Defaults to '{0}'.".format(DEFAULT_STDIN_KEY),
+                            type=str, metavar='STDIN_KEY', dest='STDIN_KEY')
     group1 = arg_parser.add_mutually_exclusive_group()
     group1.add_argument("-r", "--random-name", help="Set the temporary HTML file name to a random string.", action='store_true')
     group1.add_argument("-d", "--date-name", help="Set the temporary HTML file name to the current date/time string.", action='store_true')
@@ -266,7 +269,22 @@ def main():
     file_path = make_file_path(args)
     file_name = make_file_name(args)
     html_file = os.path.join(file_path, file_name)
-    form_data = make_form_data_string(args.post_data)
+    if args.post_data:
+        form_data = make_form_data_string(args.post_data)
+    else:
+        form_data = ''
+
+    if 'STDIN_KEY' in vars(args).keys() and getattr(args, 'STDIN_KEY') is not None:
+        stdin_key = str(getattr(args, 'STDIN_KEY')).strip()
+    else:
+        stdin_key = DEFAULT_STDIN_KEY
+
+    from_stdin = ''
+    for line in sys.stdin.readlines():
+        from_stdin += line
+
+    if from_stdin:
+        form_data += "\n<textarea name='{0}' id='{0}' form='postform'>{1}</textarea>\n".format(stdin_key, from_stdin.strip())
 
     html_text = HTML_TEMPLATE.format(url, form_data,)
 

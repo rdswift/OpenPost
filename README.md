@@ -22,6 +22,8 @@ openpost.py [-h] [-p FILEPATH] [-r | -d | -f FILENAME] [-k | -t SECONDS] URL KEY
 
 `-p, --file-path FILEPATH` sets the output directory for the temporary HTML file to `FILEPATH`.  If not set, this defaults to the current directory.
 
+`-s, --stdin KEY` sets the form key to use for input read from stdin (pipe or redirect).  If not set, this defaults to 'stdin'.
+
 The file name for the temporary HTML file is set using one of:
 
 - `-r, --random-name` sets the temporary HTML file name to a random string.
@@ -48,7 +50,7 @@ Some basic checking is performed on the inputs provided on the command line.  If
 - `107`: Invalid temporary file name: Empty string.
 - `108`: Invalid POST data: Not a list.
 - `109`: Invalid POST data item: No key/value separator.
-- `110`: Invalid POST data item: No key spacified.
+- `110`: Invalid POST data item: No key specified.
 - `111`: Invalid POST data: Empty list.
 
 If an error occurs during parsing of the command line arguments, the program will exit with an error code of 2.  Examples include:
