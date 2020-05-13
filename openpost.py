@@ -47,6 +47,7 @@ HTML_TEMPLATE = """\
     <title>OpenPost Redirector</title>
   </head>
   <body onLoad="javascript: document.getElementById('postform').submit();">
+    <p>Loading...</p>
     <form method="post" name="postform" id="postform" action="{0}">
 {1}
     </form>
@@ -290,7 +291,7 @@ def main():
         exit_with_error(111)
 
     if from_stdin:
-        form_data += "\n<textarea name='{0}' id='{0}' form='postform'>{1}</textarea>\n".format(stdin_key, from_stdin.strip())
+        form_data += "\n<textarea name='{0}' id='{0}' form='postform' style='display: none;'>{1}</textarea>\n".format(stdin_key, from_stdin.strip())
 
     html_text = HTML_TEMPLATE.format(url, form_data,)
 
