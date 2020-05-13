@@ -58,7 +58,6 @@ Some basic checking is performed on the inputs provided on the command line.  If
 If an error occurs during parsing of the command line arguments, the program will exit with an error code of 2.  Examples include:
 
 - No arguments provided.
-- Missing `key=value` information.  Note that the first non-option argument is assumed to be the `url`.
 - Use of more than one of the mutually exclusive options `-r`, `-d` and `-f`.
 - Use of more than one of the mutually exclusive options `-k` and `-t`.
 
