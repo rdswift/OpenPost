@@ -365,12 +365,14 @@ class MyTests(unittest.TestCase):
         self.assertEqual(err.exception.code, 2)
         # unittest.main(exit=False)
 
-    def test_main_2_2(self):
-        with self.assertRaises(SystemExit) as err:
-            with suppress_allout():
-                test_module.parse_command_arguments(['localhost'])
-        self.assertEqual(err.exception.code, 2)
-        # unittest.main(exit=False)
+    # Test disabled because missing key=value pairs no longer caught in parse_command_arguments module.
+
+    # def test_main_2_2(self):
+    #     with self.assertRaises(SystemExit) as err:
+    #         with suppress_allout():
+    #             test_module.parse_command_arguments(['localhost'])
+    #     self.assertEqual(err.exception.code, 2)
+    #     # unittest.main(exit=False)
 
     def test_main_2_3(self):
         with self.assertRaises(SystemExit) as err:

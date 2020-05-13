@@ -22,7 +22,9 @@ openpost.py [-h] [-p FILEPATH] [-r | -d | -f FILENAME] [-k | -t SECONDS] URL KEY
 
 `-p, --file-path FILEPATH` sets the output directory for the temporary HTML file to `FILEPATH`.  If not set, this defaults to the current directory.
 
-`-s, --stdin KEY` sets the form key to use for input read from stdin (pipe or redirect).  If not set, this defaults to 'stdin'.
+`-s` tells OpenPost to accept an additional input value from stdin, typically via a pipe.
+
+`--stdin KEY` sets the form key to use for input read from stdin.  If not set, this defaults to 'stdin'.
 
 The file name for the temporary HTML file is set using one of:
 

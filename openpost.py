@@ -140,7 +140,8 @@ def parse_command_arguments(args=None):
                             metavar='KEY=VALUE', type=str, nargs='*')
     arg_parser.add_argument("-p", "--file-path", help="Output directory for the temporary HTML file.  Defaults to the current directory.",
                             type=str, metavar='FILEPATH', dest='FILEPATH')
-    arg_parser.add_argument("-s", "--stdin", help="Key to use for input from stdin.  Defaults to '{0}'.".format(DEFAULT_STDIN_KEY),
+    arg_parser.add_argument("-s", "--stdin", help="Accepts an additional input value from stdin.", action='store_true')
+    arg_parser.add_argument("--key", help="Key to use for input from stdin.  Defaults to '{0}'.".format(DEFAULT_STDIN_KEY),
                             type=str, metavar='STDIN_KEY', dest='STDIN_KEY')
     group1 = arg_parser.add_mutually_exclusive_group()
     group1.add_argument("-r", "--random-name", help="Set the temporary HTML file name to a random string.", action='store_true')
@@ -280,8 +281,13 @@ def main():
         stdin_key = DEFAULT_STDIN_KEY
 
     from_stdin = ''
-    for line in sys.stdin.readlines():
-        from_stdin += line
+    if args.stdin:
+        for line in sys.stdin.readlines():
+            from_stdin += line
+        from_stdin = from_stdin.strip()
+
+    if not form_data and not from_stdin:
+        exit_with_error(111)
 
     if from_stdin:
         form_data += "\n<textarea name='{0}' id='{0}' form='postform'>{1}</textarea>\n".format(stdin_key, from_stdin.strip())
