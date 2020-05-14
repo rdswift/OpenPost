@@ -1,64 +1,86 @@
 # OpenPost
 
-This utility allows you to open a POST request in a browser window from the command line.  It works by writing a temporary HTML file locally, and then opens the file in the browser.  Upon opening, the file will immediately submit a form via POST to the target url.
+The OpenPost project is intended to allow the creation of an html POST request file, and optionally open the request
+in a browser window.  The project provides both a Python module for use within a program, and a stand-alone Python
+script that can be used on the command line.
 
-## Command Line
+## Python Module
 
-The utility is called as:
+The module provides an ``OpenPost`` class object to prepare and submit html POST requests using the default system internet browser.
+It works by writing a temporary html file locally, and then opens the file in the browser.  Upon opening, the file will immediately
+submit a form via POST to the target url.
 
-```sh
-openpost.py [-h] [-p FILEPATH] [-r | -d | -f FILENAME] [-k | -t SECONDS] URL KEY=VALUE [KEY=VALUE ...]
+Install using:
+
+``` sh
+pip install openpost
 ```
 
-### Required Fields
+### OpenPost Object
 
-`URL` is the url to which the POST request is made.
+*class* openpost.**OpenPost**(*url=None, file_name=None, keep_file=False, time_to_live=5, form_data={}*)
 
-`KEY=VALUE` is the information to include in the form's POST data.  There can be multiple `KEY=VALUE` pairs included on the command line, separated by spaces.
+Create a new OpenPost object. All parameters should be passed as keyword arguments. Each parameter is also made available
+as a property as described below.
 
-### Options
+### Properties
 
-`-h, --help` displays the help information and exits.
+- *{str}* OpenPost.**file_name**  
+The path and name to use for the output html file.
 
-`-p, --file-path FILEPATH` sets the output directory for the temporary HTML file to `FILEPATH`.  If not set, this defaults to the current directory.
+- *{dict}* OpenPost.**form_data**  
+The `key:value` data to include in the POST request html form.  Each `key` will be entered as a separate item in the form.
 
-`-s` tells OpenPost to accept an additional input value from stdin, typically via a pipe.
+- *{bool}* OpenPost.**keep_file**  
+An indicator as to whether or not to keep the output html file after opening in browser.
 
-`--stdin KEY` sets the form key to use for input read from stdin.  If not set, this defaults to 'stdin'.
+- *{float}* OpenPost.**time_to_live**  
+The number of seconds to delay before removing the output html file (0-60).  This is ignored if the `keep_file` property is set to `True`.
 
-The file name for the temporary HTML file is set using one of:
+- *{str}* OpenPost.**url**  
+The url for the action field in the html form.
 
-- `-r, --random-name` sets the temporary HTML file name to a random string.
-- `-d, --date-name` sets the temporary HTML file name to the current date/time string.
-- `-f, --file-name FILENAME` sets the temporary HTML file name to the `FILENAME` provided.
+- *{bool}* OpenPost.**written**  
+An indicator as to whether or not the html file has already been written.
 
-These options are mutually exclusive, meaning that one (at most) can be selected per run. If none of these options are selected, the file name for the temporary HTML file will default to `openpost.html`.  Note that if a file exists with the same name as the temporary HTML file being saved, it will be overwritten.
+### Methods
 
-By default, the temporary HTML file will be deleted after 5 seconds.  This should allow sufficient time for the browser to open the file and begin the form submission.  This behavior can be modified by using one of:
+- OpenPost.**clear_data()**  
+Clears the data used for the POST request form.
 
-- `-k, --keep-file` instructs the program to not delete the temporary HTML file.
-- `-t, --time-to-live SECONDS` instructs the program to wait `SECONDS` seconds before deleting the temporary HTML file.  Note that `SECONDS` must be a number greater than 0 and less than or equal to 60.  Both integer and floating point numbers are allowed.
+- OpenPost.**add_key(*key*, *value*)**  
+Add or update a data key used for the POST request form.  
+Arguments:
 
-### Error Codes
+  - key {str} -- Key used in the form
+  - value {str} -- Value for the specified key
 
-Some basic checking is performed on the inputs provided on the command line.  If an error is detected, the program will display an error message and exit with an error code.  The errors are:
+- OpenPost.**delete_key(*key*)**  
+Remove a data key used for the POST request form.  
+Argument:
 
-- `101`: Invalid URL provided: Empty string.
-- `102`: Invalid URL provided: Contains spaces.
-- `103`: Invalid URL provided: Unspecified error.
-- `104`: Invalid temporary file time-to-live.  Must be greater than 0 and less than or equal to 60 seconds.
-- `105`: Invalid temporary file path: Empty string.
-- `106`: Invalid temporary file path: Unable to enter.
-- `107`: Invalid temporary file name: Empty string.
-- `108`: Invalid POST data: Not a list.
-- `109`: Invalid POST data item: No key/value separator.
-- `110`: Invalid POST data item: No key specified.
-- `111`: Invalid POST data: Empty list.
+  - key {str} -- Key to be removed from the form
 
-If an error occurs during parsing of the command line arguments, the program will exit with an error code of 2.  Examples include:
+- OpenPost.**make_html()**  
+Make the content of the output html file.  
+Returns a string containing the content of the html file, or '' if an error occurred.
 
-- No arguments provided.
-- Use of more than one of the mutually exclusive options `-r`, `-d` and `-f`.
-- Use of more than one of the mutually exclusive options `-k` and `-t`.
+- OpenPost.**write_html()**  
+Prepare and write the output html file.  
+Returns True if the file was successfully written, otherwise False.
 
-In the event of an Exception error during the process of creating, opening, and deleting the temporary HTML file, the program will halt and the exception information will be displayed.
+- OpenPost.**send_post()**  
+Open the output POST html file in the default web browser, automatically writing the output html file if it has not already been written.
+Automatically removes the output file after the specified time delay unless the keep_file flag has been set.  
+Returns True if the file was successfully opened, otherwise False.
+
+- OpenPost.**version()**  
+Returns the version number of the openpost module.
+
+## Command Line Utility
+
+This utility allows you to open a POST request in a browser window from the command line.  It works by writing a
+temporary html file locally, and then opens the file in the browser.  Upon opening, the file will immediately submit
+a form via POST to the target url.
+
+Please see the [repository on GitHub](https://github.com/rdswift/OpenPost/tree/master/cli) for full usage information and to download.
