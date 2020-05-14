@@ -15,7 +15,7 @@ AUTH_EMAIL = 'bswift@rsds.ca'
 MAINT_NAME = AUTH_NAME
 MAINT_EMAIL = AUTH_EMAIL
 URL = "https://github.com/rdswift/OpenPost"
-LICENSE = "GPLv3"
+LICENSE = "MIT"
 DOWNLOAD_URL = "https://github.com/rdswift/OpenPost"
 
 with open("./README.md", "r") as f:
@@ -50,7 +50,7 @@ if __name__ == "__main__":
         include_package_data=False,
         classifiers=[
             "Intended Audience :: Developers",
-            "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+            "License :: OSI Approved :: MIT License",
             "Operating System :: OS Independent",
             "Programming Language :: Python :: 3",
             "Topic :: Internet :: WWW/HTTP",
