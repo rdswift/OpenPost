@@ -43,4 +43,4 @@ jobs:
         export PYTHONPATH="$PYTHONPATH:."
         python -c "import sys;print(sys.path)"
         coverage run runtests
-        coverage report
+    #    coverage report
