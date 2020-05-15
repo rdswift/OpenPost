@@ -50,7 +50,7 @@ class MyTests(unittest.TestCase):
     def test_initialize_02(self):
         poster = test_module.OpenPost('test_url', 'test_file_name', True, 10.5, {'one': 'This is the number one.'})
         self.assertEqual(poster.url, 'test_url')
-        self.assertEqual(poster.file_name, 'test_file_name')
+        self.assertEqual(poster.file_name, 'test_file_name.html')
         self.assertTrue(poster.keep_file)
         self.assertEqual(poster.time_to_live, 10.5)
         self.assertEqual(len(poster.form_data.keys()), 1)
@@ -106,16 +106,19 @@ class MyTests(unittest.TestCase):
 
     def test_validate_data(self):
         poster = test_module.OpenPost()
+        self.assertEqual(poster._validate_data(None), {})
         self.assertEqual(poster._validate_data({}), {})
+        self.assertEqual(poster._validate_data([]), {})
+        self.assertEqual(poster._validate_data(''), {})
         with self.assertRaises(ValueError):
             with suppress_allout():
                 poster._validate_data('string')
         with self.assertRaises(ValueError):
             with suppress_allout():
-                poster._validate_data(None)
+                poster._validate_data(['list'])
         with self.assertRaises(ValueError):
             with suppress_allout():
-                poster._validate_data(['list'])
+                poster._validate_data(('a', 'b'))
         with self.assertRaises(ValueError):
             with suppress_allout():
                 poster._validate_data(1)
@@ -157,9 +160,52 @@ class MyTests(unittest.TestCase):
         self.assertEqual(poster._make_filename(None), 'OpenPost.html')
         self.assertEqual(poster._make_filename(''), 'OpenPost.html')
         self.assertEqual(poster._make_filename(' '), 'OpenPost.html')
-        self.assertEqual(poster._make_filename(-1), '-1.html')
-        self.assertEqual(poster._make_filename(10.50), '10.5.html')
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_filename(-1)
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_filename(10.50)
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_filename({'a': 'b'})
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_filename(['a', 'b'])
         self.assertEqual(poster._make_filename('fred.html'), 'fred.html')
         self.assertEqual(poster._make_filename(' fred.html'), 'fred.html')
         self.assertEqual(poster._make_filename('fred.html '), 'fred.html')
         self.assertEqual(poster._make_filename('fred.htm'), 'fred.htm.html')
+
+    def test_make_string(self):
+        poster = test_module.OpenPost()
+        self.assertEqual(poster._make_string(None), '')
+        self.assertEqual(poster._make_string(''), '')
+        self.assertEqual(poster._make_string(' '), '')
+        self.assertEqual(poster._make_string(' a '), 'a')
+        self.assertEqual(poster._make_string(['', '', '']), '')
+        self.assertEqual(poster._make_string(['', ' ', '']), '')
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_string({'a': 'b'})
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_string(10)
+        with self.assertRaises(AttributeError):
+            with suppress_allout():
+                poster._make_string(10.5)
+        with self.assertRaises(TypeError):
+            with suppress_allout():
+                poster._make_string(['', None, ''])
+        with self.assertRaises(TypeError):
+            with suppress_allout():
+                poster._make_string(['', {'a': 'b'}, ''])
+        with self.assertRaises(TypeError):
+            with suppress_allout():
+                poster._make_string(['', 10, ''])
+        with self.assertRaises(TypeError):
+            with suppress_allout():
+                poster._make_string(['', 10.5, ''])
+        with self.assertRaises(TypeError):
+            with suppress_allout():
+                poster._make_string(['', ['a', 'b'], ''])

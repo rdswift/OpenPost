@@ -6,16 +6,18 @@ image: "python:3.7"
 #   - pip install -r requirements_testing.txt
 
 stages:
-  - Static Analysis
+  # - Static Analysis
+  - Code Style Analysis
+  - Code Static Analysis
   - Unit Testing
 
-markdown-analysis:
-  image: "ruby:latest"
-  stage: Static Analysis
-  allow_failure: true
-  script:
-  - gem install mdl
-  - mdl ./
+# markdown-analysis:
+#   image: "ruby:latest"
+#   stage: Static Analysis
+#   allow_failure: true
+#   script:
+#   - gem install mdl
+#   - mdl ./
 #  only:
 #    changes:
 #      - "**/*.md"
@@ -27,15 +29,27 @@ markdown-analysis:
 #   - ls -l
 #   - python -m mypy plugins/rds_hooks.py
 
-python-analysis:
-  stage: Static Analysis
-  allow_failure: true
+python-style:
+  stage: Code Style Analysis
+  # allow_failure: true
   script:
   - python --version
   - pip install -r requirements.txt
-  - pip install flake8 pylint
-  - flake8 .
-  - pylint openpost.py
+  - pip install flake8
+  - flake8 setup.py cli/. openpost/.
+#  only:
+#    changes:
+#      - *.py
+#      - test/*.py
+
+python-analysis:
+  stage: Code Static Analysis
+  # allow_failure: true
+  script:
+  - python --version
+  - pip install -r requirements.txt
+  - pip install pylint
+  - pylint setup.py cli/. openpost/.
 #  only:
 #    changes:
 #      - *.py
@@ -53,7 +67,7 @@ python-testing:
   - export PYTHONPATH="$PYTHONPATH:."
   - python -c "import sys;print(sys.path)"
   - coverage run runtests
-  - coverage report
+#  - coverage report
 #  - pytest -v --capture=sys --cov-branch --cov=openpost
 #  - python -m pytest -v
 #  only:

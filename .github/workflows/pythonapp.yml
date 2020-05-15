@@ -1,12 +1,12 @@
 name: Python application
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build:
 
+  flake8:
+    name: Check code style with flake8
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.7
@@ -17,30 +17,99 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Lint with flake8
+    - name: Check with flake8
       run: |
         pip install flake8
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        # flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
-    # - name: Test with pytest
-    #   run: |
-    #     pip install pytest
-    #     pip install pytest-cov
-    #     pwd
-    #     ls -l
-    #     export PYTHONPATH="$PYTHONPATH:."
-    #     python -c "import sys;print(sys.path)"
-    #     # pytest
-    #     pytest -v --capture=sys --cov-branch --cov=openpost
-    - name: Test with unittest
+        flake8 setup.py cli/. openpost/. --show-source --statistics
+
+  pylint:
+    name: Check code with pylint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Check with flake8
+      run: |
+        pip install pylint
+        pylint setup.py cli/. openpost/.
+
+  unittest:
+    name: Test code with unittest
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Check with unittest
       run: |
         pip install coverage
-        pwd
-        ls -l
         export PYTHONPATH="$PYTHONPATH:."
         python -c "import sys;print(sys.path)"
         coverage run runtests
     #    coverage report
+
+
+
+
+  # build:
+
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - name: Set up Python 3.7
+  #     uses: actions/setup-python@v1
+  #     with:
+  #       python-version: 3.7
+  #   - name: Install dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install -r requirements.txt
+  #   - name: Lint with flake8
+  #       run: |
+  #       pip install flake8
+  #       flake8 setup.py cli/. openpost/. --show-source --statistics
+  #   # - name: Lint with flake8
+  #   #   run: |
+  #   #     pip install flake8
+  #   #     # stop the build if there are Python syntax errors or undefined names
+  #   #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+  #   #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+  #   #     # flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+  #   #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=200 --statistics
+  #   # - name: Test with pytest
+  #   #   run: |
+  #   #     pip install pytest
+  #   #     pip install pytest-cov
+  #   #     pwd
+  #   #     ls -l
+  #   #     export PYTHONPATH="$PYTHONPATH:."
+  #   #     python -c "import sys;print(sys.path)"
+  #   #     # pytest
+  #   #     pytest -v --capture=sys --cov-branch --cov=openpost
+  #   - name: Lint with flake8
+  #       run: |
+  #       pip install flake8
+  #       flake8 setup.py cli/. openpost/. --show-source --statistics
+  #   - name: Test with unittest
+  #     run: |
+  #       pip install coverage
+  #       pwd
+  #       ls -l
+  #       export PYTHONPATH="$PYTHONPATH:."
+  #       python -c "import sys;print(sys.path)"
+  #       coverage run runtests
+  #   #    coverage report

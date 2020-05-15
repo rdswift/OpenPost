@@ -25,32 +25,39 @@
 #                                                                               #
 #################################################################################
 
+# pylint: disable=R0902, R0913
+
+"""Creates an html POST request file and allows opening in a browser window."""
+
 import os
 # import html
 # import re
 import time
 import webbrowser
 
-__version__ = "0.2"
+__version__ = "0.3"
 
 
 class OpenPost():
+    """Creates an html POST request file and allows opening in a browser window."""
 
     HTML_TEMPLATE = """\
+<!DOCTYPE html>
 <html>
   <head>
-    <title>OpenPost Redirector</title>
+  <title>OpenPost Redirector</title>
+{0}
   </head>
   <body onLoad="javascript: document.getElementById('postform').submit();">
-    <p>Loading...</p>
-    <form method="post" name="postform" id="postform" action="{0}">
-{1}
+    <form method="post" name="postform" id="postform" action="{1}">
+{2}
     </form>
+{3}
   </body>
 </html>
 """
 
-    def __init__(self, url=None, file_name='OpenPost.html', keep_file=False, time_to_live=5, form_data={}):
+    def __init__(self, url=None, file_name=None, keep_file=False, time_to_live=5, form_data=None, headers=None, body=None, new_tab=True):
         """Creates an html POST request file and allows opening in a browser window.
 
         Keyword Arguments:
@@ -59,13 +66,19 @@ class OpenPost():
             keep_file {bool} -- Keep the output html file after opening in browser (default: False)
             time_to_live {float} -- Number of seconds to delay before removing the output html file (0-60) (default: 5)
             form_data {dict} -- The key:value data to include in the POST request (default: {})
+            headers {str|list} -- Lines to include in the <head> section of the html file (default: None)
+            body {str} -- Additional lines to include in the <body> section of the html file (default: None)
+            new_tab {bool} -- Open the html file in a new browser tab (default: True)
         """
         self.form_data = self._validate_data(form_data)
         self.url = url
         self.keep_file = keep_file
-        self.file_name = file_name
+        self.file_name = self._make_filename(file_name)
         self.time_to_live = time_to_live
-        self.written = False
+        self.headers = headers
+        self.body = body
+        self.new_tab = new_tab
+        self.written = False    # Depricated as of v0.3
 
     @staticmethod
     def version():
@@ -92,8 +105,7 @@ class OpenPost():
         temp = float(ttl)
         if 0 <= temp <= 60:
             return temp
-        else:
-            raise ValueError('Time to live out of range (0-60)')
+        raise ValueError('Time to live out of range (0-60)')
 
     @staticmethod
     def _validate_data(form_data):
@@ -108,10 +120,11 @@ class OpenPost():
         Returns:
             {dict} -- The key:value data to include in the POST request
         """
+        if not form_data:
+            return {}
         if isinstance(form_data, dict):
             return form_data
-        else:
-            raise ValueError('Form_data not a dictionary')
+        raise ValueError('Form_data not a dictionary')
 
     @staticmethod
     def _validate_url(url):
@@ -134,6 +147,14 @@ class OpenPost():
         raise ValueError('Invalid url.')
 
     @staticmethod
+    def _make_string(text):
+        if text:
+            if isinstance(text, list):
+                return ('\n'.join(text)).strip()
+            return text.strip()
+        return ''
+
+    @staticmethod
     def _make_filename(name):
         """Validate the output file name for the POST html file.
 
@@ -143,19 +164,18 @@ class OpenPost():
         Returns:
             {str} -- Validated file path and name
         """
-        temp = str(name).strip()
-        if name and temp:
-            if not temp.endswith('.html'):
-                temp += '.html'
-            return temp
-        else:
-            return 'OpenPost.html'
+        if name:
+            temp = name.strip()
+            if temp:
+                if not temp.endswith('.html'):
+                    temp += '.html'
+                return temp
+        return 'OpenPost.html'
 
     def clear_data(self):
         """Clears the data used for the POST request form.
         """
         self.form_data = {}
-        self.written = False
 
     def add_key(self, key, value):
         """Add or update a data key used for the POST request form.
@@ -165,7 +185,6 @@ class OpenPost():
             value {str} -- Value for the specified key
         """
         self.form_data[key] = str(value)
-        self.written = False
 
     def delete_key(self, key):
         """Remove a data key used for the POST request form.
@@ -174,7 +193,6 @@ class OpenPost():
             key {str} -- Key to be removed from the form
         """
         self.form_data.pop(key, None)
-        self.written = False
 
     def make_html(self):
         """Make the content of the output html file.
@@ -183,16 +201,15 @@ class OpenPost():
             {str} -- The content of the html file, or '' if an error
         """
         url = self._validate_url(self.url)
+        headers = self._make_string(self.headers)
+        body = self._make_string(self.body)
         data = self._validate_data(self.form_data)
         if not data:
             return ''
         form_content = ''
         for key in data.keys():
-            # html_key = html.escape(key)
-            # html_value = html.escape(str(data[key]).strip())
-            # form_content += "<textarea name='{0}' id='{0}' form='postform' style='display: none;'>{1}</textarea>\n".format(html_key, html_value)
             form_content += "<textarea name='{0}' id='{0}' form='postform' style='display: none;'>{1}</textarea>\n".format(key, str(data[key]).strip())
-        return self.HTML_TEMPLATE.format(url, form_content)
+        return self.HTML_TEMPLATE.format(headers, url, form_content, body)
 
     def write_html(self):
         """Prepare and write the output html file.
@@ -200,14 +217,12 @@ class OpenPost():
         Returns:
             {bool} -- True if the file was successfully written, otherwise false
         """
-        self.written = False
         filename = self._make_filename(self.file_name)
         html = self.make_html()
         if not html:
             return False
         with open(filename, 'w', encoding='utf-8') as output_file:
             output_file.write(html)
-        self.written = True
         return True
 
     def send_post(self):
@@ -218,11 +233,13 @@ class OpenPost():
         Returns:
             {bool} -- True if the file was successfully opened, otherwise false
         """
-        if not self.written:
-            if not self.write_html():
-                return False
         filename = self._make_filename(self.file_name)
-        webbrowser.open_new_tab(filename)
+        if not self.write_html():
+            return False
+        if self.new_tab:
+            webbrowser.open_new_tab(filename)
+        else:
+            webbrowser.open(filename)
 
         #   Remove temporary HTML file
         if not self.keep_file:

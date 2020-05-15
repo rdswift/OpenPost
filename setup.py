@@ -3,6 +3,8 @@
 # Copyright (C) 2020 Bob Swift
 # <bswift@rsds.ca>
 
+"""Builder for the 'openpost' package."""
+
 import os
 from setuptools import setup
 
@@ -22,8 +24,8 @@ with open("./README.md", "r") as f:
     LONG_DESCRIPTION = f.read()
 
 with open("./openpost/__init__.py", "r") as f:
-    lines = f.readlines()
-    for line in lines:
+    LINES = f.readlines()
+    for line in LINES:
         if line.startswith("__version__"):
             __version__ = line.split("= ")[-1].strip().strip('"')
             break

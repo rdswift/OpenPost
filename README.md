@@ -18,21 +18,35 @@ pip install openpost
 
 ### OpenPost Object
 
-*class* openpost.**OpenPost**(*url=None, file_name=None, keep_file=False, time_to_live=5, form_data={}*)
+*class* openpost.**OpenPost**(*url=None, file_name=None, keep_file=False, time_to_live=5, form_data={}, headers=None, body=None, new_tab=True*)
 
 Create a new OpenPost object. All parameters should be passed as keyword arguments. Each parameter is also made available
 as a property as described below.
 
 ### Properties
 
+- *{str}* OpenPost.**body**  
+Additional lines to be added to the \<body\> section of the html document.  If the value is an array, each element will be added on a
+separate line.  
+*(Added in v0.3)*
+
 - *{str}* OpenPost.**file_name**  
-The path and name to use for the output html file.
+The path and name to use for the output html file.  If no filename is set, it will default to 'OpenPost.html' in the current directory.
 
 - *{dict}* OpenPost.**form_data**  
 The `key:value` data to include in the POST request html form.  Each `key` will be entered as a separate item in the form.
 
+- *{str}* OpenPost.**headers**  
+Additional lines to be added to the \<head\> section of the html document.  If the value is an array, each element will be added on a
+separate line.  
+*(Added in v0.3)*
+
 - *{bool}* OpenPost.**keep_file**  
 An indicator as to whether or not to keep the output html file after opening in browser.
+
+- *{bool}* OpenPost.**new_tab**  
+An indicator as to whether or not to open the page in a new browser tab.  Note that some browsers will force opening in a new tab regardless of this setting.  
+*(Added in v0.3)*
 
 - *{float}* OpenPost.**time_to_live**  
 The number of seconds to delay before removing the output html file (0-60).  This is ignored if the `keep_file` property is set to `True`.
@@ -41,7 +55,8 @@ The number of seconds to delay before removing the output html file (0-60).  Thi
 The url for the action field in the html form.
 
 - *{bool}* OpenPost.**written**  
-An indicator as to whether or not the html file has already been written.
+An indicator as to whether or not the html file has already been written.  
+*(Depricated since v0.3)*
 
 ### Methods
 
@@ -52,14 +67,14 @@ Clears the data used for the POST request form.
 Add or update a data key used for the POST request form.  
 Arguments:
 
-  - key {str} -- Key used in the form
-  - value {str} -- Value for the specified key
+  - *{str}* key -- Key used in the form
+  - *{str}* value -- Value for the specified key
 
 - OpenPost.**delete_key(*key*)**  
 Remove a data key used for the POST request form.  
 Argument:
 
-  - key {str} -- Key to be removed from the form
+  - *{str}* key -- Key to be removed from the form
 
 - OpenPost.**make_html()**  
 Make the content of the output html file.  
@@ -76,6 +91,24 @@ Returns True if the file was successfully opened, otherwise False.
 
 - OpenPost.**version()**  
 Returns the version number of the openpost module.
+
+### Example
+
+``` python
+import openpost
+
+poster = openpost.OpenPost()
+poster.url = 'https://www.somesite.org/login.php'
+poster.file_name = 'my_special_filename.html'
+poster.add_key('name', 'My Name')
+poster.add_key('id', 'My_ID')
+poster.add_key('password', 'My_Secret_Password')
+poster.body = r'<p>You are being redirected.  Please stand by...</p>'
+if poster.send_post():
+  print('POST request sent.')
+else:
+  print('Error sending POST request.')
+```
 
 ## Command Line Utility
 
